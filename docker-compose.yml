@@ -1,0 +1,30 @@
+services:
+  mongo:
+    image: mongo:7.0
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - relief-mongo-data:/data/db
+
+  server:
+    build: ./server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/disaster_relief_db
+      - PORT=5000
+    depends_on:
+      - mongo
+
+  client:
+    build: ./client
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+
+volumes:
+  relief-mongo-data: {}
