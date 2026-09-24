@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-const SUPPLY_METADATA = {
-  WATER: { label: 'Potable Water', unit: 'Liters', icon: '💧', tint: 'tint-cyan' },
-  MEDICAL: { label: 'Trauma Packs', unit: 'Kits', icon: '🩹', tint: 'tint-rose' },
-  FOOD: { label: 'MRE Rations', unit: 'Meals', icon: '🥫', tint: 'tint-amber' },
-  SHELTER_BLANKETS: { label: 'Thermal Blankets', unit: 'Bundles', icon: '⛺', tint: 'tint-emerald' }
+const SUPPLY_CONFIG = {
+  WATER: { label: 'Clean Drinking Water', unit: 'Liters', icon: '💧', badgeClass: 'badge-teal' },
+  MEDICAL: { label: 'Emergency First Aid', unit: 'Kits', icon: '🩺', badgeClass: 'badge-coral' },
+  FOOD: { label: 'Essential Food Rations', unit: 'Meals', icon: '🍞', badgeClass: 'badge-amber' },
+  SHELTER_BLANKETS: { label: 'Blankets & Tents', unit: 'Bundles', icon: '⛺', badgeClass: 'badge-sage' }
 };
 
 export default function App() {
@@ -21,14 +21,14 @@ export default function App() {
   const loadData = () => {
     fetch('/api/requests')
       .then(res => res.json())
-      .then(data => setRequests(data))
+      .then(data => setRequests(Array.isArray(data) ? data : []))
       .catch(console.error);
   };
 
   useEffect(() => {
     loadData();
-    const timer = setInterval(loadData, 8000);
-    return () => clearInterval(timer);
+    const interval = setInterval(loadData, 8000);
+    return () => clearInterval(interval);
   }, []);
 
   const dispatchTruck = async (id) => {
@@ -61,120 +61,121 @@ export default function App() {
     }
   };
 
-  const totalPeople = requests.reduce((acc, r) => acc + (Number(r.peopleAffected) || 0), 0);
-  const highPriorityTotal = requests.filter(r => r.urgencyScore >= 1000).length;
+  const totalAffected = requests.reduce((acc, r) => acc + (Number(r.peopleAffected) || 0), 0);
+  const urgentCount = requests.filter(r => r.urgencyScore >= 1000).length;
 
   return (
-    <div className="layout-root">
-      {/* Precision Command Header */}
-      <header className="header-bar">
-        <div className="brand-group">
-          <div className="beacon-indicator">
-            <span className="beacon-ring"></span>
-            <span className="beacon-core"></span>
+    <div className="app-shell">
+      {/* Soft Header */}
+      <header className="app-header">
+        <div className="header-inner">
+          <div className="brand">
+            <div className="brand-mark">
+              <span className="pulse-dot"></span>
+            </div>
+            <div>
+              <h1 className="brand-name">ResQ<span>Net</span></h1>
+              <p className="brand-tagline">Humanitarian Relief Dispatch & Coordination</p>
+            </div>
           </div>
-          <div>
-            <div className="brand-title">AEGIS<span className="brand-highlight">RELIEF</span></div>
-            <div className="brand-subtitle">Automated Triage & Emergency Logistics Engine</div>
-          </div>
-        </div>
-
-        <div className="header-meta">
-          <div className="telemetry-pill">
-            <span className="live-dot"></span>
-            <span className="telemetry-label">DISPATCH HUB: LIVE</span>
+          <div className="header-status">
+            <span className="network-pill">
+              <span className="network-dot"></span>
+              Live Sync Active
+            </span>
           </div>
         </div>
       </header>
 
-      <main className="dashboard-content">
-        {/* Metric Telemetry Cards */}
-        <section className="metric-deck">
-          <div className="metric-card">
-            <div className="metric-header">Active Deficits</div>
-            <div className="metric-data-row">
-              <span className="metric-number">{requests.length}</span>
-              <span className="metric-trend neutral">ACTIVE</span>
+      {/* Main Body */}
+      <main className="main-container">
+        {/* Metric Cards */}
+        <section className="stats-row">
+          <div className="stat-card">
+            <span className="stat-title">Pending Requests</span>
+            <div className="stat-value-group">
+              <span className="stat-number">{requests.length}</span>
+              <span className="stat-chip chip-slate">Open</span>
             </div>
-            <div className="metric-caption">Awaiting relief convoy triage</div>
+            <p className="stat-sub">Relief deliveries awaiting assignment</p>
           </div>
 
-          <div className="metric-card">
-            <div className="metric-header">Critical Urgency (&gt; 1,000)</div>
-            <div className="metric-data-row">
-              <span className="metric-number alert">{highPriorityTotal}</span>
-              <span className="metric-trend danger">HIGH</span>
+          <div className="stat-card">
+            <span className="stat-title">High Priority Cases</span>
+            <div className="stat-value-group">
+              <span className="stat-number stat-alert">{urgentCount}</span>
+              <span className="stat-chip chip-coral">Urgent</span>
             </div>
-            <div className="metric-caption">Elevated life-safety index</div>
+            <p className="stat-sub">Immediate attention recommended</p>
           </div>
 
-          <div className="metric-card">
-            <div className="metric-header">Population Exposed</div>
-            <div className="metric-data-row">
-              <span className="metric-number">{totalPeople.toLocaleString()}</span>
-              <span className="metric-trend neutral">SOULS</span>
+          <div className="stat-card">
+            <span className="stat-title">People Reached</span>
+            <div className="stat-value-group">
+              <span className="stat-number">{totalAffected.toLocaleString()}</span>
+              <span className="stat-chip chip-teal">Total</span>
             </div>
-            <div className="metric-caption">Directly impacted survivors</div>
+            <p className="stat-sub">Recorded across registered sites</p>
           </div>
 
-          <div className="metric-card">
-            <div className="metric-header">Automated Routing</div>
-            <div className="metric-data-row">
-              <span className="metric-number success">Online</span>
-              <span className="metric-trend success">NOMINAL</span>
+          <div className="stat-card">
+            <span className="stat-title">Cluster Status</span>
+            <div className="stat-value-group">
+              <span className="stat-number stat-ok">Connected</span>
+              <span className="stat-chip chip-sage">Healthy</span>
             </div>
-            <div className="metric-caption">Dispatch engine operational</div>
+            <p className="stat-sub">Cloud database synchronized</p>
           </div>
         </section>
 
-        {/* Primary Operational Workspace */}
-        <div className="operation-grid">
-          {/* Deficit Logging Form */}
-          <section className="surface-card">
-            <div className="surface-header">
-              <div className="surface-title">Record Emergency Requisition</div>
-              <div className="surface-subtitle">Log verified field deficit to calculate algorithmic urgency</div>
+        {/* Content Split: Form & Table */}
+        <div className="content-grid">
+          {/* Form */}
+          <section className="panel-card">
+            <div className="panel-header">
+              <h2>New Assistance Request</h2>
+              <p>Submit supplies needed by relief field workers</p>
             </div>
 
-            <form onSubmit={submitRequest} className="operation-form">
-              <div className="field-group">
-                <label>Camp / Outpost Name</label>
+            <form onSubmit={submitRequest} className="request-form">
+              <div className="form-group">
+                <label>Camp or Shelter Name</label>
                 <input
                   type="text"
-                  placeholder="e.g. Outpost Delta Seven"
+                  placeholder="e.g. Sunrise Community Center"
                   value={form.campName}
                   onChange={e => setForm({ ...form, campName: e.target.value })}
                   required
                 />
               </div>
 
-              <div className="field-group">
-                <label>Target Sector & Grid Coordinates</label>
+              <div className="form-group">
+                <label>Location / Area</label>
                 <input
                   type="text"
-                  placeholder="e.g. Sector 4 • Waypoint Bravo"
+                  placeholder="e.g. North Zone - Block 3"
                   value={form.region}
                   onChange={e => setForm({ ...form, region: e.target.value })}
                   required
                 />
               </div>
 
-              <div className="field-group">
-                <label>Supply Category</label>
+              <div className="form-group">
+                <label>Resource Needed</label>
                 <select
                   value={form.resourceType}
                   onChange={e => setForm({ ...form, resourceType: e.target.value })}
                 >
-                  <option value="WATER">💧 Potable Drinking Water (Liters)</option>
-                  <option value="MEDICAL">🩹 Medical Trauma Kits</option>
-                  <option value="FOOD">🥫 MRE Rations & Meal Packs</option>
-                  <option value="SHELTER_BLANKETS">⛺ Thermal Blankets & Shelters</option>
+                  <option value="WATER">💧 Clean Drinking Water (Liters)</option>
+                  <option value="MEDICAL">🩺 Emergency First Aid Kits</option>
+                  <option value="FOOD">🍞 Essential Food Rations (Meals)</option>
+                  <option value="SHELTER_BLANKETS">⛺ Blankets & Tents (Bundles)</option>
                 </select>
               </div>
 
-              <div className="field-split">
-                <div className="field-group">
-                  <label>Deficit Quantity</label>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Quantity</label>
                   <input
                     type="number"
                     min="1"
@@ -184,8 +185,8 @@ export default function App() {
                     required
                   />
                 </div>
-                <div className="field-group">
-                  <label>Impacted Individuals</label>
+                <div className="form-group">
+                  <label>People Affected</label>
                   <input
                     type="number"
                     min="1"
@@ -197,71 +198,71 @@ export default function App() {
                 </div>
               </div>
 
-              <button type="submit" className="submit-btn" disabled={loading}>
-                {loading ? 'Transmitting Alert...' : 'Publish Deficit to Grid'}
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? 'Submitting...' : 'Log Relief Request'}
               </button>
             </form>
           </section>
 
-          {/* Priority Triage Ledger */}
-          <section className="surface-card">
-            <div className="surface-header flex-between">
+          {/* Table */}
+          <section className="panel-card">
+            <div className="panel-header panel-header-flex">
               <div>
-                <div className="surface-title">Urgency Triage Ledger</div>
-                <div className="surface-subtitle">Prioritized dynamically by weighted severity algorithms</div>
+                <h2>Active Request Queue</h2>
+                <p>Prioritized according to demand and population size</p>
               </div>
-              <button className="sync-btn" onClick={loadData}>↻ Resync</button>
+              <button className="btn-secondary" onClick={loadData}>Refresh</button>
             </div>
 
-            <div className="table-wrapper">
-              <table className="priority-table">
+            <div className="table-responsive">
+              <table className="relief-table">
                 <thead>
                   <tr>
-                    <th>Urgency Score</th>
-                    <th>Camp Location</th>
-                    <th>Resource Requested</th>
-                    <th>Deficit Quantity</th>
+                    <th>Score</th>
+                    <th>Camp & Location</th>
+                    <th>Supply Type</th>
+                    <th>Amount</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {requests.map(item => {
-                    const supply = SUPPLY_METADATA[item.resourceType] || {
+                    const supply = SUPPLY_CONFIG[item.resourceType] || {
                       label: item.resourceType,
                       unit: 'Units',
                       icon: '📦',
-                      tint: 'tint-slate'
+                      badgeClass: 'badge-slate'
                     };
                     const isUrgent = item.urgencyScore >= 1000;
 
                     return (
-                      <tr key={item._id} className={isUrgent ? 'row-urgent' : ''}>
+                      <tr key={item._id} className={isUrgent ? 'row-highlight' : ''}>
                         <td>
-                          <span className={`urgency-tag ${isUrgent ? 'urgent' : 'standard'}`}>
+                          <span className={`score-badge ${isUrgent ? 'score-urgent' : 'score-normal'}`}>
                             {item.urgencyScore}
                           </span>
                         </td>
                         <td>
-                          <div className="entity-name">{item.campName}</div>
-                          <div className="entity-sub">{item.region} • {item.peopleAffected} souls</div>
+                          <div className="camp-name">{item.campName}</div>
+                          <div className="camp-sub">{item.region} • {item.peopleAffected} people</div>
                         </td>
                         <td>
-                          <span className={`category-pill ${supply.tint}`}>
+                          <span className={`supply-badge ${supply.badgeClass}`}>
                             <span>{supply.icon}</span>
                             <span>{supply.label}</span>
                           </span>
                         </td>
-                        <td className="mono-stat">
+                        <td className="qty-cell">
                           <strong>{item.quantityNeeded.toLocaleString()}</strong>
-                          <span className="mono-unit">{supply.unit}</span>
+                          <span className="qty-unit">{supply.unit}</span>
                         </td>
                         <td>
                           <button
-                            className="dispatch-action-btn"
+                            className="btn-dispatch"
                             onClick={() => dispatchTruck(item._id)}
                             disabled={loading}
                           >
-                            Dispatch Truck
+                            Mark Dispatched
                           </button>
                         </td>
                       </tr>
@@ -269,11 +270,11 @@ export default function App() {
                   })}
                   {requests.length === 0 && (
                     <tr>
-                      <td colSpan="5" className="empty-state-cell">
-                        <div className="empty-state">
-                          <div className="empty-icon">🛡️</div>
-                          <div className="empty-title">Logistics Ledger Clear</div>
-                          <div className="empty-desc">All registered emergency camp requisitions have been fulfilled and dispatched.</div>
+                      <td colSpan="5">
+                        <div className="empty-notice">
+                          <span className="empty-emoji">🌿</span>
+                          <h3>Queue is clear</h3>
+                          <p>All requested relief provisions have been dispatched.</p>
                         </div>
                       </td>
                     </tr>
