@@ -45,6 +45,7 @@ export default function App() {
 
   const submitRequest = async (e) => {
     e.preventDefault();
+    if (!form.campName.trim() || !form.region.trim()) return;
     setLoading(true);
     try {
       await fetch('/api/requests', {
@@ -61,12 +62,21 @@ export default function App() {
     }
   };
 
+  // --- Dynamic Live Metrics Calculations ---
+  const pendingCount = requests.length;
+  const urgentCount = requests.filter(r => (Number(r.urgencyScore) || 0) >= 1000).length;
   const totalAffected = requests.reduce((acc, r) => acc + (Number(r.peopleAffected) || 0), 0);
-  const urgentCount = requests.filter(r => r.urgencyScore >= 1000).length;
+  
+  // Computes the number of distinct regions/zones requiring relief
+  const activeSectorsCount = new Set(
+    requests
+      .map(r => r.region?.trim().toLowerCase())
+      .filter(Boolean)
+  ).size;
 
   return (
     <div className="app-shell">
-      {/* Soft Header */}
+      {/* Header */}
       <header className="app-header">
         <div className="header-inner">
           <div className="brand">
@@ -87,54 +97,60 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Body */}
+      {/* Main Container */}
       <main className="main-container">
-        {/* Metric Cards */}
+        {/* Dynamic Metric Cards */}
         <section className="stats-row">
+          {/* Card 1: Pending Queue */}
           <div className="stat-card">
             <span className="stat-title">Pending Requests</span>
             <div className="stat-value-group">
-              <span className="stat-number">{requests.length}</span>
+              <span className="stat-number">{pendingCount}</span>
               <span className="stat-chip chip-slate">Open</span>
             </div>
-            <p className="stat-sub">Relief deliveries awaiting assignment</p>
+            <p className="stat-sub">Relief shipments awaiting dispatch</p>
           </div>
 
+          {/* Card 2: High Priority Cases */}
           <div className="stat-card">
             <span className="stat-title">High Priority Cases</span>
             <div className="stat-value-group">
-              <span className="stat-number stat-alert">{urgentCount}</span>
-              <span className="stat-chip chip-coral">Urgent</span>
+              <span className={`stat-number ${urgentCount > 0 ? 'stat-alert' : ''}`}>
+                {urgentCount}
+              </span>
+              <span className="stat-chip chip-coral">Score ≥ 1000</span>
             </div>
-            <p className="stat-sub">Immediate attention recommended</p>
+            <p className="stat-sub">Critical emergencies needing immediate aid</p>
           </div>
 
+          {/* Card 3: Civilians in Need */}
           <div className="stat-card">
-            <span className="stat-title">People Reached</span>
+            <span className="stat-title">Civilians In Need</span>
             <div className="stat-value-group">
               <span className="stat-number">{totalAffected.toLocaleString()}</span>
-              <span className="stat-chip chip-teal">Total</span>
+              <span className="stat-chip chip-teal">Headcount</span>
             </div>
-            <p className="stat-sub">Recorded across registered sites</p>
+            <p className="stat-sub">Individuals across active shelter points</p>
           </div>
 
+          {/* Card 4: Replaced Cluster Status with Active Sectors */}
           <div className="stat-card">
-            <span className="stat-title">Cluster Status</span>
+            <span className="stat-title">Active Field Sectors</span>
             <div className="stat-value-group">
-              <span className="stat-number stat-ok">Connected</span>
-              <span className="stat-chip chip-sage">Healthy</span>
+              <span className="stat-number stat-sage">{activeSectorsCount}</span>
+              <span className="stat-chip chip-sage">Zones</span>
             </div>
-            <p className="stat-sub">Cloud database synchronized</p>
+            <p className="stat-sub">Geographic sectors currently receiving logistics</p>
           </div>
         </section>
 
-        {/* Content Split: Form & Table */}
+        {/* Content Section: Form & Table */}
         <div className="content-grid">
           {/* Form */}
           <section className="panel-card">
             <div className="panel-header">
               <h2>New Assistance Request</h2>
-              <p>Submit supplies needed by relief field workers</p>
+              <p>Submit provisions needed by relief field workers</p>
             </div>
 
             <form onSubmit={submitRequest} className="request-form">
@@ -204,12 +220,12 @@ export default function App() {
             </form>
           </section>
 
-          {/* Table */}
+          {/* Queue Table */}
           <section className="panel-card">
             <div className="panel-header panel-header-flex">
               <div>
                 <h2>Active Request Queue</h2>
-                <p>Prioritized according to demand and population size</p>
+                <p>Prioritized according to urgency score and population density</p>
               </div>
               <button className="btn-secondary" onClick={loadData}>Refresh</button>
             </div>
@@ -218,7 +234,7 @@ export default function App() {
               <table className="relief-table">
                 <thead>
                   <tr>
-                    <th>Score</th>
+                    <th>Urgency</th>
                     <th>Camp & Location</th>
                     <th>Supply Type</th>
                     <th>Amount</th>
@@ -253,7 +269,7 @@ export default function App() {
                           </span>
                         </td>
                         <td className="qty-cell">
-                          <strong>{item.quantityNeeded.toLocaleString()}</strong>
+                          <strong>{Number(item.quantityNeeded).toLocaleString()}</strong>
                           <span className="qty-unit">{supply.unit}</span>
                         </td>
                         <td>
