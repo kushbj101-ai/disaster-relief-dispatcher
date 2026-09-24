@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-const RESOURCE_ICONS = {
-  WATER: '💧',
-  MEDICAL: '🩹',
-  FOOD: '🥫',
-  SHELTER_BLANKETS: '⛺'
+const SUPPLY_METADATA = {
+  WATER: { label: 'Potable Water', unit: 'Liters', icon: '💧', tint: 'tint-cyan' },
+  MEDICAL: { label: 'Trauma Packs', unit: 'Kits', icon: '🩹', tint: 'tint-rose' },
+  FOOD: { label: 'MRE Rations', unit: 'Meals', icon: '🥫', tint: 'tint-amber' },
+  SHELTER_BLANKETS: { label: 'Thermal Blankets', unit: 'Bundles', icon: '⛺', tint: 'tint-emerald' }
 };
 
 export default function App() {
@@ -27,8 +27,8 @@ export default function App() {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 10000); // Polling every 10s
-    return () => clearInterval(interval);
+    const timer = setInterval(loadData, 8000);
+    return () => clearInterval(timer);
   }, []);
 
   const dispatchTruck = async (id) => {
@@ -61,187 +61,219 @@ export default function App() {
     }
   };
 
-  const totalImpacted = requests.reduce((acc, r) => acc + (r.peopleAffected || 0), 0);
-  const criticalCount = requests.filter(r => r.urgencyScore >= 1500).length;
+  const totalPeople = requests.reduce((acc, r) => acc + (Number(r.peopleAffected) || 0), 0);
+  const highPriorityTotal = requests.filter(r => r.urgencyScore >= 1000).length;
 
   return (
-    <div className="shell">
-      {/* Top Navbar */}
-      <nav className="top-nav">
-        <div className="nav-brand">
-          <div className="radar-ping">
-            <span className="ping-beacon"></span>
-            <span className="ping-dot"></span>
+    <div className="layout-root">
+      {/* Precision Command Header */}
+      <header className="header-bar">
+        <div className="brand-group">
+          <div className="beacon-indicator">
+            <span className="beacon-ring"></span>
+            <span className="beacon-core"></span>
           </div>
           <div>
-            <h1>AegisRelief</h1>
-            <span className="nav-tagline">Autonomous Disaster Dispatch Network</span>
+            <div className="brand-title">AEGIS<span className="brand-highlight">RELIEF</span></div>
+            <div className="brand-subtitle">Automated Triage & Emergency Logistics Engine</div>
           </div>
         </div>
-        <div className="system-status">
-          <span className="status-indicator"></span>
-          <span>DISPATCH ENGINE ACTIVE</span>
-        </div>
-      </nav>
 
-      <main className="content-container">
-        {/* KPI Telemetry Banner */}
-        <section className="kpi-grid">
-          <div className="kpi-card">
-            <span className="kpi-title">Active Requests</span>
-            <span className="kpi-value">{requests.length}</span>
-            <span className="kpi-subtext">Open camp deficits</span>
+        <div className="header-meta">
+          <div className="telemetry-pill">
+            <span className="live-dot"></span>
+            <span className="telemetry-label">DISPATCH HUB: LIVE</span>
           </div>
-          <div className="kpi-card">
-            <span className="kpi-title">Critical Urgency</span>
-            <span className="kpi-value warning">{criticalCount}</span>
-            <span className="kpi-subtext">Score &gt; 1500 threshold</span>
+        </div>
+      </header>
+
+      <main className="dashboard-content">
+        {/* Metric Telemetry Cards */}
+        <section className="metric-deck">
+          <div className="metric-card">
+            <div className="metric-header">Active Deficits</div>
+            <div className="metric-data-row">
+              <span className="metric-number">{requests.length}</span>
+              <span className="metric-trend neutral">ACTIVE</span>
+            </div>
+            <div className="metric-caption">Awaiting relief convoy triage</div>
           </div>
-          <div className="kpi-card">
-            <span className="kpi-title">Population at Risk</span>
-            <span className="kpi-value">{totalImpacted.toLocaleString()}</span>
-            <span className="kpi-subtext">Cumulative individuals</span>
+
+          <div className="metric-card">
+            <div className="metric-header">Critical Urgency (&gt; 1,000)</div>
+            <div className="metric-data-row">
+              <span className="metric-number alert">{highPriorityTotal}</span>
+              <span className="metric-trend danger">HIGH</span>
+            </div>
+            <div className="metric-caption">Elevated life-safety index</div>
           </div>
-          <div className="kpi-card">
-            <span className="kpi-title">Network Response</span>
-            <span className="kpi-value accent">Ready</span>
-            <span className="kpi-subtext">Convoy fleet standby</span>
+
+          <div className="metric-card">
+            <div className="metric-header">Population Exposed</div>
+            <div className="metric-data-row">
+              <span className="metric-number">{totalPeople.toLocaleString()}</span>
+              <span className="metric-trend neutral">SOULS</span>
+            </div>
+            <div className="metric-caption">Directly impacted survivors</div>
+          </div>
+
+          <div className="metric-card">
+            <div className="metric-header">Automated Routing</div>
+            <div className="metric-data-row">
+              <span className="metric-number success">Online</span>
+              <span className="metric-trend success">NOMINAL</span>
+            </div>
+            <div className="metric-caption">Dispatch engine operational</div>
           </div>
         </section>
 
-        {/* Action Panel Grid */}
-        <div className="workspace-grid">
-          {/* Dispatch Registration Form */}
-          <section className="panel-card form-panel">
-            <div className="panel-header">
-              <h3>Log Urgent Camp Deficit</h3>
-              <p>Broadcast high-priority needs across relief chains</p>
+        {/* Primary Operational Workspace */}
+        <div className="operation-grid">
+          {/* Deficit Logging Form */}
+          <section className="surface-card">
+            <div className="surface-header">
+              <div className="surface-title">Record Emergency Requisition</div>
+              <div className="surface-subtitle">Log verified field deficit to calculate algorithmic urgency</div>
             </div>
-            
-            <form onSubmit={submitRequest}>
-              <div className="input-group">
-                <label>Camp Identifier</label>
-                <input 
-                  placeholder="e.g., Sector 7 Delta Shelter" 
-                  value={form.campName} 
-                  onChange={e => setForm({...form, campName: e.target.value})} 
-                  required 
+
+            <form onSubmit={submitRequest} className="operation-form">
+              <div className="field-group">
+                <label>Camp / Outpost Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Outpost Delta Seven"
+                  value={form.campName}
+                  onChange={e => setForm({ ...form, campName: e.target.value })}
+                  required
                 />
               </div>
 
-              <div className="input-group">
-                <label>Region & Coordinates</label>
-                <input 
-                  placeholder="e.g., Coastal Highway KM 14" 
-                  value={form.region} 
-                  onChange={e => setForm({...form, region: e.target.value})} 
-                  required 
+              <div className="field-group">
+                <label>Target Sector & Grid Coordinates</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Sector 4 • Waypoint Bravo"
+                  value={form.region}
+                  onChange={e => setForm({ ...form, region: e.target.value })}
+                  required
                 />
               </div>
 
-              <div className="input-group">
-                <label>Requested Critical Supply</label>
-                <select 
-                  value={form.resourceType} 
-                  onChange={e => setForm({...form, resourceType: e.target.value})}
+              <div className="field-group">
+                <label>Supply Category</label>
+                <select
+                  value={form.resourceType}
+                  onChange={e => setForm({ ...form, resourceType: e.target.value })}
                 >
                   <option value="WATER">💧 Potable Drinking Water (Liters)</option>
                   <option value="MEDICAL">🩹 Medical Trauma Kits</option>
-                  <option value="FOOD">🥫 MRE Rations & Food Packs</option>
-                  <option value="SHELTER_BLANKETS">⛺ Thermal Blankets & Tents</option>
+                  <option value="FOOD">🥫 MRE Rations & Meal Packs</option>
+                  <option value="SHELTER_BLANKETS">⛺ Thermal Blankets & Shelters</option>
                 </select>
               </div>
 
-              <div className="form-row">
-                <div className="input-group">
-                  <label>Quantity Required</label>
-                  <input 
-                    type="number" 
-                    placeholder="Units / Liters" 
-                    value={form.quantityNeeded} 
-                    onChange={e => setForm({...form, quantityNeeded: e.target.value})} 
-                    required 
+              <div className="field-split">
+                <div className="field-group">
+                  <label>Deficit Quantity</label>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Units needed"
+                    value={form.quantityNeeded}
+                    onChange={e => setForm({ ...form, quantityNeeded: e.target.value })}
+                    required
                   />
                 </div>
-                <div className="input-group">
-                  <label>Impacted People</label>
-                  <input 
-                    type="number" 
-                    placeholder="Headcount" 
-                    value={form.peopleAffected} 
-                    onChange={e => setForm({...form, peopleAffected: e.target.value})} 
-                    required 
+                <div className="field-group">
+                  <label>Impacted Individuals</label>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Headcount"
+                    value={form.peopleAffected}
+                    onChange={e => setForm({ ...form, peopleAffected: e.target.value })}
+                    required
                   />
                 </div>
               </div>
 
-              <button type="submit" disabled={loading} className="btn-dispatch-submit">
-                {loading ? 'Transmitting...' : 'Transmit Deficit Alert'}
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? 'Transmitting Alert...' : 'Publish Deficit to Grid'}
               </button>
             </form>
           </section>
 
-          {/* Real-time Triage Priority Queue */}
-          <section className="panel-card table-panel">
-            <div className="panel-header">
-              <div className="flex-between">
-                <div>
-                  <h3>Autonomous Triage Matrix</h3>
-                  <p>Queued dynamically by weighted algorithmic urgency</p>
-                </div>
-                <button onClick={loadData} className="btn-refresh">↻ Refresh</button>
+          {/* Priority Triage Ledger */}
+          <section className="surface-card">
+            <div className="surface-header flex-between">
+              <div>
+                <div className="surface-title">Urgency Triage Ledger</div>
+                <div className="surface-subtitle">Prioritized dynamically by weighted severity algorithms</div>
               </div>
+              <button className="sync-btn" onClick={loadData}>↻ Resync</button>
             </div>
 
-            <div className="table-responsive">
-              <table>
+            <div className="table-wrapper">
+              <table className="priority-table">
                 <thead>
                   <tr>
-                    <th>Priority Score</th>
+                    <th>Urgency Score</th>
                     <th>Camp Location</th>
-                    <th>Resource Type</th>
-                    <th>Quantity</th>
-                    <th>Convoy Action</th>
+                    <th>Resource Requested</th>
+                    <th>Deficit Quantity</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {requests.map(r => (
-                    <tr key={r._id} className={r.urgencyScore >= 1500 ? 'row-critical' : ''}>
-                      <td>
-                        <div className={`score-badge ${r.urgencyScore >= 1500 ? 'critical' : 'stable'}`}>
-                          <span>⚡ {r.urgencyScore}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="camp-title">{r.campName}</div>
-                        <div className="camp-region">{r.region} • {r.peopleAffected} people</div>
-                      </td>
-                      <td>
-                        <span className="resource-pill">
-                          {RESOURCE_ICONS[r.resourceType] || '📦'} {r.resourceType}
-                        </span>
-                      </td>
-                      <td className="quantity-cell">
-                        <strong>{r.quantityNeeded.toLocaleString()}</strong>
-                      </td>
-                      <td>
-                        <button 
-                          className="btn-action-dispatch" 
-                          onClick={() => dispatchTruck(r._id)}
-                          disabled={loading}
-                        >
-                          Dispatch Convoy
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {requests.map(item => {
+                    const supply = SUPPLY_METADATA[item.resourceType] || {
+                      label: item.resourceType,
+                      unit: 'Units',
+                      icon: '📦',
+                      tint: 'tint-slate'
+                    };
+                    const isUrgent = item.urgencyScore >= 1000;
+
+                    return (
+                      <tr key={item._id} className={isUrgent ? 'row-urgent' : ''}>
+                        <td>
+                          <span className={`urgency-tag ${isUrgent ? 'urgent' : 'standard'}`}>
+                            {item.urgencyScore}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="entity-name">{item.campName}</div>
+                          <div className="entity-sub">{item.region} • {item.peopleAffected} souls</div>
+                        </td>
+                        <td>
+                          <span className={`category-pill ${supply.tint}`}>
+                            <span>{supply.icon}</span>
+                            <span>{supply.label}</span>
+                          </span>
+                        </td>
+                        <td className="mono-stat">
+                          <strong>{item.quantityNeeded.toLocaleString()}</strong>
+                          <span className="mono-unit">{supply.unit}</span>
+                        </td>
+                        <td>
+                          <button
+                            className="dispatch-action-btn"
+                            onClick={() => dispatchTruck(item._id)}
+                            disabled={loading}
+                          >
+                            Dispatch Truck
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                   {requests.length === 0 && (
                     <tr>
-                      <td colSpan="5">
+                      <td colSpan="5" className="empty-state-cell">
                         <div className="empty-state">
-                          <span className="empty-icon">🛡️</span>
-                          <h4>All Sectors Stable</h4>
-                          <p>No unfulfilled emergency camp alerts logged in the operational database.</p>
+                          <div className="empty-icon">🛡️</div>
+                          <div className="empty-title">Logistics Ledger Clear</div>
+                          <div className="empty-desc">All registered emergency camp requisitions have been fulfilled and dispatched.</div>
                         </div>
                       </td>
                     </tr>
