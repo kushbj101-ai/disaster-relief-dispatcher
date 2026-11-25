@@ -1,15 +1,1046 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ResQNet | Emergency Aid Coordination</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResQNet — Emergency Coordination &amp; Disaster Response Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: {
+              950: '#090b0f',
+              900: '#10141c',
+              850: '#161b26',
+              800: '#1e2533',
+              700: '#2a3346',
+            },
+            rosealert: {
+              500: '#d9534f',
+              600: '#c9423e',
+            },
+            ambermuted: {
+              400: '#d49a42',
+              500: '#b88232',
+            },
+            sagemuted: {
+              400: '#5ca382',
+              500: '#468769',
+            },
+            steelaccent: {
+              400: '#6c8ebf',
+              500: '#5374a6',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+    body {
+      background-color: #090b0f;
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .subtle-grid {
+      background-image: 
+        linear-gradient(to right, rgba(42, 51, 70, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(42, 51, 70, 0.25) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+    .glass-card {
+      background: linear-gradient(180deg, rgba(22, 27, 38, 0.85) 0%, rgba(16, 20, 28, 0.95) 100%);
+      border: 1px solid rgba(42, 51, 70, 0.75);
+      box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.45);
+    }
+    .glass-card:hover {
+      border-color: rgba(71, 85, 105, 0.85);
+    }
+    @keyframes subtle-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.15); }
+    }
+    .beacon-dot {
+      animation: subtle-pulse 2.4s ease-in-out infinite;
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #090b0f; }
+    ::-webkit-scrollbar-thumb { background: #2a3346; border-radius: 4px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Refined Executive Navigation Header -->
+  <header class="sticky top-0 z-50 bg-obsidian-950/90 backdrop-blur-lg border-b border-obsidian-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Brand Identity -->
+        <div class="flex items-center gap-3.5 cursor-pointer" onclick="navigate('operations')">
+          <div class="w-9 h-9 rounded-lg bg-obsidian-850 border border-obsidian-700 flex items-center justify-center text-slate-200 shadow-inner">
+            <i class="fa-solid fa-compass text-base text-rosealert-500"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold tracking-tight text-base text-white">ResQ<span class="text-slate-400 font-semibold">Net</span></span>
+              <span class="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded bg-obsidian-850 text-slate-400 border border-obsidian-700">Command Grid</span>
+            </div>
+            <p class="text-[11px] text-slate-500 hidden sm:block">Unified Disaster Response &amp; Field Coordination</p>
+          </div>
+        </div>
+
+        <!-- Multi-Section Navigation -->
+        <nav class="hidden lg:flex items-center gap-1 bg-obsidian-900/90 p-1 rounded-xl border border-obsidian-800">
+          <button data-tab="operations" onclick="navigate('operations')" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-[11px]"></i> Operations Overview
+          </button>
+          <button data-tab="sos" onclick="navigate('sos')" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2">
+            <i class="fa-solid fa-tower-broadcast text-[11px]"></i> SOS &amp; Dispatch
+          </button>
+          <button data-tab="teams" onclick="navigate('teams')" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2">
+            <i class="fa-solid fa-user-shield text-[11px]"></i> Field Teams
+          </button>
+          <button data-tab="logistics" onclick="navigate('logistics')" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stacked text-[11px]"></i> Relief Logistics
+          </button>
+          <button data-tab="shelters" onclick="navigate('shelters')" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2">
+            <i class="fa-solid fa-house-medical text-[11px]"></i> Shelters &amp; Advisories
+          </button>
+        </nav>
+
+        <!-- Primary Action Controls -->
+        <div class="flex items-center gap-2.5">
+          <button onclick="navigate('sos')" class="bg-rosealert-600 hover:bg-rosealert-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-plus text-[11px]"></i>
+            <span>Log SOS Incident</span>
+          </button>
+          <button onclick="resetDemoData()" title="Reset Simulation Data" class="p-2 text-slate-400 hover:text-slate-200 rounded-lg bg-obsidian-900 border border-obsidian-800 hover:border-obsidian-700 transition text-xs">
+            <i class="fa-solid fa-arrow-rotate-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Horizontal Navigation -->
+      <div class="flex lg:hidden overflow-x-auto gap-1.5 py-2.5 border-t border-obsidian-800/80">
+        <button data-tab="operations" onclick="navigate('operations')" class="nav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium">Overview</button>
+        <button data-tab="sos" onclick="navigate('sos')" class="nav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium">SOS Dispatch</button>
+        <button data-tab="teams" onclick="navigate('teams')" class="nav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium">Field Teams</button>
+        <button data-tab="logistics" onclick="navigate('logistics')" class="nav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium">Logistics</button>
+        <button data-tab="shelters" onclick="navigate('shelters')" class="nav-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium">Shelters &amp; Advisories</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Subtle Operational Bulletin Bar -->
+  <div class="bg-obsidian-900 border-b border-obsidian-800/90 text-xs py-2 px-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5 overflow-hidden">
+        <span class="inline-flex items-center gap-1.5 shrink-0 font-mono text-[11px] uppercase tracking-wider text-rosealert-500 bg-rosealert-500/10 px-2 py-0.5 rounded border border-rosealert-500/25">
+          <span class="w-1.5 h-1.5 rounded-full bg-rosealert-500 beacon-dot"></span> Advisory
+        </span>
+        <p id="live-ticker" class="truncate text-slate-400">Regional Bulletin: Heavy rainfall advisory active across Sector NW-01 &amp; NE-02. All rapid-response units on standby.</p>
+      </div>
+      <span id="clock-display" class="shrink-0 font-mono text-[11px] text-slate-500 hidden sm:inline"></span>
+    </div>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7">
+
+    <!-- ========================================================= -->
+    <!-- SECTION 1: OPERATIONS OVERVIEW                            -->
+    <!-- ========================================================= -->
+    <section id="tab-operations" class="tab-section space-y-6">
+      <!-- Executive KPI Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card rounded-xl p-5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-xs font-medium">Active Incidents</span>
+            <i class="fa-solid fa-circle-exclamation text-rosealert-500 text-sm"></i>
+          </div>
+          <div class="mt-3 flex items-baseline justify-between">
+            <h3 id="stat-active-sos" class="text-3xl font-bold text-white tracking-tight">0</h3>
+            <span class="text-[11px] font-mono text-rosealert-500">Priority Queue</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1.5">Requiring active field intervention</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-xs font-medium">Field Teams Deployed</span>
+            <i class="fa-solid fa-users-gear text-steelaccent-400 text-sm"></i>
+          </div>
+          <div class="mt-3 flex items-baseline justify-between">
+            <h3 id="stat-teams" class="text-3xl font-bold text-white tracking-tight">0/0</h3>
+            <span class="text-[11px] font-mono text-steelaccent-400">Response Squads</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1.5">Search, rescue &amp; medical units</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-xs font-medium">Shelter Occupancy</span>
+            <i class="fa-solid fa-house-medical text-sagemuted-400 text-sm"></i>
+          </div>
+          <div class="mt-3 flex items-baseline justify-between">
+            <h3 id="stat-shelter-cap" class="text-3xl font-bold text-white tracking-tight">0%</h3>
+            <span id="stat-shelter-sub" class="text-[11px] font-mono text-sagemuted-400">0 / 0 beds</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1.5">Across 4 verified regional camps</p>
+        </div>
+
+        <div class="glass-card rounded-xl p-5">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-xs font-medium">Evacuations Completed</span>
+            <i class="fa-solid fa-shield-check text-ambermuted-400 text-sm"></i>
+          </div>
+          <div class="mt-3 flex items-baseline justify-between">
+            <h3 id="stat-rescued" class="text-3xl font-bold text-white tracking-tight">0</h3>
+            <span class="text-[11px] font-mono text-ambermuted-400">Citizens Safe</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1.5">Confirmed extractions &amp; check-ins</p>
+        </div>
+      </div>
+
+      <!-- Sector Map + Active Dispatch Feed -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Tactical Sector Grid -->
+        <div class="lg:col-span-7 glass-card rounded-xl overflow-hidden flex flex-col">
+          <div class="px-5 py-4 border-b border-obsidian-800 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="font-semibold text-sm text-white">Regional Sector Coordination Map</h2>
+              <p class="text-xs text-slate-500">Select a sector marker to inspect coordinates and assigned response units</p>
+            </div>
+            <div class="flex items-center gap-3.5 text-[11px] text-slate-400">
+              <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rosealert-500"></span> Critical</span>
+              <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-ambermuted-400"></span> Urgent</span>
+              <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sagemuted-400"></span> Safe Shelter</span>
+            </div>
+          </div>
+
+          <div class="relative h-80 sm:h-[22rem] subtle-grid bg-obsidian-950 overflow-hidden select-none">
+            <!-- Coordinate Crosshairs -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="w-44 h-44 rounded-full border border-obsidian-800/90"></div>
+              <div class="w-80 h-80 rounded-full border border-obsidian-800/60"></div>
+              <div class="w-full h-px bg-obsidian-800/50"></div>
+              <div class="h-full w-px bg-obsidian-800/50"></div>
+            </div>
+
+            <!-- Quadrant Labels -->
+            <span class="absolute top-3 left-3.5 text-[10px] font-mono text-slate-500 tracking-wider">SECTOR NW-01 // MANDI BASIN</span>
+            <span class="absolute top-3 right-3.5 text-[10px] font-mono text-slate-500 tracking-wider">SECTOR NE-02 // KULLU VALLEY</span>
+            <span class="absolute bottom-3 left-3.5 text-[10px] font-mono text-slate-500 tracking-wider">SECTOR SW-03 // SUNDERNAGAR</span>
+            <span class="absolute bottom-3 right-3.5 text-[10px] font-mono text-slate-500 tracking-wider">SECTOR SE-04 // PANDOH RIDGE</span>
+
+            <!-- Interactive Map Markers -->
+            <div id="map-pins" class="absolute inset-0"></div>
+          </div>
+
+          <!-- Marker Detail Bar -->
+          <div id="map-inspector" class="px-5 py-3.5 bg-obsidian-900 border-t border-obsidian-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <span class="text-slate-400">Click any incident or shelter pin on the sector grid to inspect operational status.</span>
+          </div>
+        </div>
+
+        <!-- Priority Incident Queue -->
+        <div class="lg:col-span-5 glass-card rounded-xl flex flex-col">
+          <div class="px-5 py-4 border-b border-obsidian-800 flex items-center justify-between">
+            <div>
+              <h2 class="font-semibold text-sm text-white">Priority Incident Log</h2>
+              <p class="text-xs text-slate-500">Live incoming distress calls</p>
+            </div>
+            <button onclick="navigate('sos')" class="text-xs text-steelaccent-400 hover:text-white transition font-medium">
+              Open Dispatch &rarr;
+            </button>
+          </div>
+          <div id="command-incident-list" class="p-4 space-y-3 overflow-y-auto max-h-[25.5rem] flex-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SECTION 2: SOS BROADCAST & DISPATCH OPERATIONS            -->
+    <!-- ========================================================= -->
+    <section id="tab-sos" class="tab-section hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Log New Incident Form -->
+        <div class="lg:col-span-5 glass-card rounded-xl p-6 h-fit">
+          <div class="pb-4 mb-5 border-b border-obsidian-800">
+            <h2 class="font-semibold text-base text-white">Log Emergency SOS Report</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Submit verified distress coordinates to alert regional response squads</p>
+          </div>
+
+          <form id="sos-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1.5">Incident Summary</label>
+              <input type="text" id="sos-title" required placeholder="e.g., Bridge Approach Submergence" class="w-full bg-obsidian-950 border border-obsidian-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-steelaccent-400" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Hazard Type</label>
+                <select id="sos-category" class="w-full bg-obsidian-950 border border-obsidian-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-steelaccent-400">
+                  <option value="Flood / Water">Flood / Water</option>
+                  <option value="Landslide">Landslide</option>
+                  <option value="Medical Evacuation">Medical Evacuation</option>
+                  <option value="Structural Damage">Structural Damage</option>
+                  <option value="Power / Comms Outage">Power / Comms Outage</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Priority Level</label>
+                <select id="sos-severity" class="w-full bg-obsidian-950 border border-obsidian-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-steelaccent-400">
+                  <option value="Critical">Critical</option>
+                  <option value="Urgent">Urgent</option>
+                  <option value="Moderate">Moderate</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Sector / Landmark</label>
+                <input type="text" id="sos-location" required placeholder="e.g., Sector NW-01, NH-21" class="w-full bg-obsidian-950 border border-obsidian-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-steelaccent-400" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Citizens Affected</label>
+                <input type="number" id="sos-people" min="1" value="4" required class="w-full bg-obsidian-950 border border-obsidian-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-steelaccent-400" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1.5">Field Notes &amp; Access Conditions</label>
+              <textarea id="sos-notes" rows="3" required placeholder="Specify road blockages, medical urgency, or contact details..." class="w-full bg-obsidian-950 border border-obsidian-700 rounded-lg px-3.5 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-steelaccent-400"></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-rosealert-600 hover:bg-rosealert-500 text-white font-semibold py-2.5 rounded-lg transition text-sm">
+              Broadcast Incident Alert
+            </button>
+          </form>
+        </div>
+
+        <!-- Active Dispatch Board -->
+        <div class="lg:col-span-7 glass-card rounded-xl p-6">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-obsidian-800">
+            <div>
+              <h2 class="font-semibold text-base text-white">Dispatch Control Board</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Assign field teams and track mission closure</p>
+            </div>
+            <div class="flex gap-1 bg-obsidian-950 p-1 rounded-lg border border-obsidian-800">
+              <button onclick="setIncidentFilter('ALL')" class="filter-btn px-3 py-1 rounded text-xs font-medium bg-obsidian-800 text-white" data-filter="ALL">All</button>
+              <button onclick="setIncidentFilter('Active')" class="filter-btn px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white" data-filter="Active">Active</button>
+              <button onclick="setIncidentFilter('Dispatched')" class="filter-btn px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white" data-filter="Dispatched">Dispatched</button>
+              <button onclick="setIncidentFilter('Resolved')" class="filter-btn px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white" data-filter="Resolved">Resolved</button>
+            </div>
+          </div>
+
+          <div id="full-incident-list" class="space-y-3.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SECTION 3: FIELD TEAMS & RESPONSE UNITS                   -->
+    <!-- ========================================================= -->
+    <section id="tab-teams" class="tab-section hidden space-y-6">
+      <div class="glass-card rounded-xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-semibold text-white">Field Response Squads &amp; Personnel</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Monitor active duty rosters, specialized equipment, and sector assignments</p>
+        </div>
+        <div class="flex items-center gap-4 text-xs text-slate-400">
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sagemuted-400"></span> Standby / Ready</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-ambermuted-400"></span> Deployed on Mission</span>
+        </div>
+      </div>
+
+      <div id="teams-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SECTION 4: RELIEF LOGISTICS & INVENTORY                   -->
+    <!-- ========================================================= -->
+    <section id="tab-logistics" class="tab-section hidden space-y-6">
+      <div class="glass-card rounded-xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-semibold text-white">Relief Supply Chain &amp; Depot Inventory</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Track emergency medical kits, rations, and rescue vessels across regional hubs</p>
+        </div>
+        <form id="add-resource-form" class="flex flex-wrap items-center gap-2">
+          <input type="text" id="res-name" placeholder="Supply item name..." required class="bg-obsidian-950 border border-obsidian-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-steelaccent-400" />
+          <input type="number" id="res-qty" placeholder="Qty" min="1" value="25" required class="w-20 bg-obsidian-950 border border-obsidian-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-steelaccent-400" />
+          <button type="submit" class="bg-obsidian-800 hover:bg-obsidian-700 text-white border border-obsidian-700 font-medium px-3.5 py-2 rounded-lg text-xs transition">
+            + Add Supply
+          </button>
+        </form>
+      </div>
+
+      <div id="resources-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SECTION 5: SHELTERS & PUBLIC ADVISORIES                   -->
+    <!-- ========================================================= -->
+    <section id="tab-shelters" class="tab-section hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Safe Shelters List -->
+        <div class="lg:col-span-8 space-y-4">
+          <div class="glass-card rounded-xl p-5">
+            <h2 class="text-base font-semibold text-white">Verified Evacuation Shelters</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Manage bed capacity, medical triage status, and evacuee check-in counts</p>
+          </div>
+          <div id="shelters-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- Public Safety Advisories & Highway Status -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="glass-card rounded-xl p-5">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-obsidian-800">
+              <div>
+                <h2 class="text-base font-semibold text-white">Public Advisories</h2>
+                <p class="text-xs text-slate-400">Publish alerts to citizen portals</p>
+              </div>
+              <i class="fa-solid fa-bullhorn text-slate-400 text-sm"></i>
+            </div>
+
+            <form id="advisory-form" class="space-y-3 mb-5">
+              <input type="text" id="adv-title" required placeholder="Advisory headline (e.g., NH-21 Diversion)" class="w-full bg-obsidian-950 border border-obsidian-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-steelaccent-400" />
+              <textarea id="adv-body" rows="2" required placeholder="Clear guidance for residents and commuters..." class="w-full bg-obsidian-950 border border-obsidian-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-steelaccent-400"></textarea>
+              <button type="submit" class="w-full bg-steelaccent-500 hover:bg-steelaccent-400 text-white font-semibold py-2 rounded-lg text-xs transition">
+                Publish Public Bulletin
+              </button>
+            </form>
+
+            <div id="advisories-list" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Minimalist Footer -->
+  <footer class="border-t border-obsidian-800/80 py-4 px-4 mt-8 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <span>ResQNet Emergency Coordination Network</span>
+      <span class="font-mono text-[11px]">Regional Operations Grid • Standardized Incident Command</span>
+    </div>
+  </footer>
+
+  <!-- Subtle Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-obsidian-850 border border-obsidian-700 text-slate-200 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs font-medium">
+    <i id="toast-icon" class="fa-solid fa-circle-check text-sagemuted-400"></i>
+    <span id="toast-msg">Updated</span>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    const STORAGE_KEY = 'resqnet_exec_v3';
+
+    const DEFAULT_STATE = {
+      incidents: [
+        {
+          id: 'INC-204',
+          title: 'Riverbank Approach Flooding',
+          category: 'Flood / Water',
+          severity: 'Critical',
+          location: 'Sector NW-01 (Beas Basin)',
+          people: 14,
+          status: 'Active',
+          squad: 'Unassigned',
+          notes: '14 residents stranded on upper terrace near old footbridge. Shallow-draft boat extraction required.',
+          x: 24,
+          y: 30,
+          time: '12m ago'
+        },
+        {
+          id: 'INC-203',
+          title: 'NH-21 Slope Debris Blockade',
+          category: 'Landslide',
+          severity: 'Urgent',
+          location: 'Sector NE-02 (Mile 14)',
+          people: 6,
+          status: 'Dispatched',
+          squad: 'NDRF Alpha',
+          notes: 'Two commuter vehicles halted behind rockfall; clearing crew and paramedics en route.',
+          x: 72,
+          y: 26,
+          time: '34m ago'
+        },
+        {
+          id: 'INC-202',
+          title: 'Cold-Chain Medical Transfer',
+          category: 'Medical Evacuation',
+          severity: 'Critical',
+          location: 'Sector SE-04 (Pandoh)',
+          people: 3,
+          status: 'Dispatched',
+          squad: 'MedEvac-02',
+          notes: 'Primary clinic backup power low; urgent insulin and dialysis patient transfer requested.',
+          x: 76,
+          y: 74,
+          time: '51m ago'
+        },
+        {
+          id: 'INC-201',
+          title: 'Low-Lying Ward Precautionary Evacuation',
+          category: 'Flood / Water',
+          severity: 'Moderate',
+          location: 'Sector SW-03 (Sundernagar)',
+          people: 22,
+          status: 'Resolved',
+          squad: 'SDRF Bravo',
+          notes: 'All 22 residents safely transported and checked into Govt. Polytechnic Relief Camp.',
+          x: 28,
+          y: 72,
+          time: '2h ago'
+        }
+      ],
+      teams: [
+        { id: 'TM-01', name: 'NDRF Alpha', specialty: 'Swift-Water & Heavy Rescue', lead: 'Cmdr. R. Verma', members: 12, status: 'Deployed', sector: 'Sector NE-02', vehicle: '4x4 Rescue Truck + Boat' },
+        { id: 'TM-02', name: 'SDRF Bravo', specialty: 'Urban Evacuation & Logistics', lead: 'Insp. S. Thakur', members: 10, status: 'Standby', sector: 'Sector SW-03', vehicle: 'Troop Carrier #04' },
+        { id: 'TM-03', name: 'MedEvac-02', specialty: 'Trauma Triage & Air/Road Med', lead: 'Dr. A. Sharma', members: 6, status: 'Deployed', sector: 'Sector SE-04', vehicle: 'ALS Mobile ICU' },
+        { id: 'TM-04', name: 'SwiftWater-04', specialty: 'Flood Extraction & Sonar', lead: 'Lt. K. Negi', members: 8, status: 'Standby', sector: 'Sector NW-01', vehicle: '2x Inflatable Zodiacs' },
+        { id: 'TM-05', name: 'GridCorps-01', specialty: 'Comms & Power Restoration', lead: 'Eng. M. Chauhan', members: 6, status: 'Standby', sector: 'Central HQ', vehicle: 'Mobile Sat-Van' },
+        { id: 'TM-06', name: 'Alpine-SAR', specialty: 'Landslide & Slope Search', lead: 'Capt. V. Rana', members: 9, status: 'Standby', sector: 'Sector NE-02', vehicle: 'All-Terrain Utility' }
+      ],
+      resources: [
+        { id: 'RES-1', name: 'Trauma & First-Aid Kits', category: 'Medical', available: 145, total: 200, unit: 'kits', hub: 'Central Depot A' },
+        { id: 'RES-2', name: 'Inflatable Rescue Boats', category: 'Marine', available: 8, total: 12, unit: 'vessels', hub: 'Beas River Base' },
+        { id: 'RES-3', name: 'Emergency Rations & Water', category: 'Sustenance', available: 620, total: 1000, unit: 'crates', hub: 'Mandi Warehouse' },
+        { id: 'RES-4', name: 'Portable Diesel Generators', category: 'Power', available: 11, total: 18, unit: 'units', hub: 'Grid Station 2' },
+        { id: 'RES-5', name: 'Satellite Handsets', category: 'Comms', available: 19, total: 25, unit: 'radios', hub: 'Command HQ' },
+        { id: 'RES-6', name: 'Thermal Relief Blankets', category: 'Shelter', available: 340, total: 500, unit: 'packs', hub: 'Sundernagar Hub' }
+      ],
+      shelters: [
+        { id: 'SH-1', name: 'Govt. Polytechnic Relief Camp', sector: 'Sector SW-03', occupied: 142, capacity: 200, medical: true, power: 'Generator Online', x: 35, y: 65 },
+        { id: 'SH-2', name: 'Mandi Indoor Stadium Safe Zone', sector: 'Sector NW-01', occupied: 265, capacity: 300, medical: true, power: 'Grid + Solar', x: 44, y: 38 },
+        { id: 'SH-3', name: 'Kullu Valley Community Hall', sector: 'Sector NE-02', occupied: 88, capacity: 150, medical: false, power: 'Grid Online', x: 64, y: 36 },
+        { id: 'SH-4', name: 'Pandoh High School Shelter', sector: 'Sector SE-04', occupied: 110, capacity: 120, medical: true, power: 'Backup Battery', x: 66, y: 66 }
+      ],
+      advisories: [
+        { id: 'ADV-1', title: 'NH-21 Traffic Restricted at Mile 14', body: 'Single-lane emergency vehicle passage only due to slope clearance operations. Use alternate bypass.', time: '25 mins ago' },
+        { id: 'ADV-2', title: 'Beas River Basin Water Release Notice', body: 'Residents within 200m of low-lying embankments advised to relocate to Mandi Indoor Stadium Safe Zone.', time: '1 hr ago' }
+      ]
+    };
+
+    let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_STATE);
+    let currentTab = 'operations';
+    let incidentFilter = 'ALL';
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderAll();
+    }
+
+    function resetDemoData() {
+      state = structuredClone(DEFAULT_STATE);
+      saveState();
+      showToast('Simulation state restored to baseline');
+    }
+
+    function navigate(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+          btn.classList.add('bg-obsidian-800', 'text-white', 'shadow-sm');
+          btn.classList.remove('text-slate-400');
+        } else {
+          btn.classList.remove('bg-obsidian-800', 'text-white', 'shadow-sm');
+          btn.classList.add('text-slate-400');
+        }
+      });
+    }
+
+    function showToast(msg, isAlert = false) {
+      const toast = document.getElementById('toast');
+      const icon = document.getElementById('toast-icon');
+      document.getElementById('toast-msg').textContent = msg;
+      icon.className = isAlert
+        ? 'fa-solid fa-circle-exclamation text-rosealert-500'
+        : 'fa-solid fa-circle-check text-sagemuted-400';
+      toast.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    // Render Operations Overview
+    function renderOverview() {
+      const activeCount = state.incidents.filter(i => i.status !== 'Resolved').length;
+      const deployedTeams = state.teams.filter(t => t.status === 'Deployed').length;
+      const totalOcc = state.shelters.reduce((acc, s) => acc + s.occupied, 0);
+      const totalCap = state.shelters.reduce((acc, s) => acc + s.capacity, 0);
+      const pct = totalCap ? Math.round((totalOcc / totalCap) * 100) : 0;
+      const rescuedPeople = state.incidents
+        .filter(i => i.status === 'Resolved')
+        .reduce((acc, i) => acc + i.people, 0) + totalOcc;
+
+      document.getElementById('stat-active-sos').textContent = activeCount;
+      document.getElementById('stat-teams').textContent = `${deployedTeams}/${state.teams.length}`;
+      document.getElementById('stat-shelter-cap').textContent = `${pct}%`;
+      document.getElementById('stat-shelter-sub').textContent = `${totalOcc}/${totalCap} beds`;
+      document.getElementById('stat-rescued').textContent = rescuedPeople.toLocaleString();
+
+      // Map Pins
+      const pinsEl = document.getElementById('map-pins');
+      pinsEl.innerHTML = '';
+
+      state.incidents.filter(i => i.status !== 'Resolved').forEach(inc => {
+        const dotColor = inc.severity === 'Critical' ? 'bg-rosealert-500' : 'bg-ambermuted-400';
+        const pin = document.createElement('button');
+        pin.style.left = `${inc.x}%`;
+        pin.style.top = `${inc.y}%`;
+        pin.className = 'absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none';
+        pin.innerHTML = `
+          <span class="relative flex h-3.5 w-3.5">
+            <span class="beacon-dot absolute inline-flex h-full w-full rounded-full ${dotColor} opacity-60"></span>
+            <span class="relative inline-flex rounded-full h-3.5 w-3.5 ${dotColor} border-2 border-obsidian-950"></span>
+          </span>
+          <span class="hidden group-hover:block absolute left-1/2 -translate-x-1/2 -top-8 whitespace-nowrap bg-obsidian-900 border border-obsidian-700 text-[10px] font-mono px-2 py-0.5 rounded text-slate-200 shadow-lg z-10">
+            ${inc.id} • ${inc.title}
+          </span>
+        `;
+        pin.onclick = () => inspectMapPin(inc, 'incident');
+        pinsEl.appendChild(pin);
+      });
+
+      state.shelters.forEach(sh => {
+        const pin = document.createElement('button');
+        pin.style.left = `${sh.x}%`;
+        pin.style.top = `${sh.y}%`;
+        pin.className = 'absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none';
+        pin.innerHTML = `
+          <span class="inline-flex items-center justify-center w-5 h-5 rounded-md bg-obsidian-900 border border-sagemuted-500/70 text-sagemuted-400 text-[10px] shadow">
+            <i class="fa-solid fa-house-medical"></i>
+          </span>
+        `;
+        pin.onclick = () => inspectMapPin(sh, 'shelter');
+        pinsEl.appendChild(pin);
+      });
+
+      // Priority List
+      const listEl = document.getElementById('command-incident-list');
+      listEl.innerHTML = state.incidents.map(inc => {
+        const badge = inc.status === 'Resolved'
+          ? 'bg-sagemuted-500/10 text-sagemuted-400 border-sagemuted-500/30'
+          : inc.severity === 'Critical'
+            ? 'bg-rosealert-500/10 text-rosealert-500 border-rosealert-500/30'
+            : 'bg-ambermuted-500/10 text-ambermuted-400 border-ambermuted-500/30';
+        return `
+          <div class="p-3.5 rounded-xl bg-obsidian-950/90 border border-obsidian-800 hover:border-obsidian-700 transition">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[11px] text-slate-500">${inc.id} • ${inc.time}</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded border ${badge}">${inc.status === 'Resolved' ? 'RESOLVED' : inc.severity.toUpperCase()}</span>
+            </div>
+            <h4 class="font-semibold text-sm text-slate-100 mt-1">${inc.title}</h4>
+            <p class="text-xs text-slate-400 mt-0.5">${inc.location} • ${inc.people} affected</p>
+            <div class="mt-2.5 pt-2 border-t border-obsidian-800/80 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">Unit: <strong class="text-slate-300 font-medium">${inc.squad}</strong></span>
+              ${inc.status !== 'Resolved'
+                ? `<button onclick="quickAdvance('${inc.id}')" class="text-steelaccent-400 hover:text-white font-medium transition">Advance Status &rarr;</button>`
+                : `<span class="text-sagemuted-400"><i class="fa-solid fa-check mr-1"></i>Closed</span>`
+              }
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function inspectMapPin(item, type) {
+      const bar = document.getElementById('map-inspector');
+      if (type === 'incident') {
+        bar.innerHTML = `
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-rosealert-500/15 text-rosealert-500 font-mono font-semibold">${item.id}</span>
+            <strong class="text-white">${item.title}</strong>
+            <span class="text-slate-400">— ${item.location} (${item.people} citizens)</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-slate-400">Unit: <strong class="text-slate-200">${item.squad}</strong></span>
+            <button onclick="quickAdvance('${item.id}')" class="bg-obsidian-800 hover:bg-obsidian-700 border border-obsidian-700 text-white px-3 py-1 rounded-md font-medium transition">Update Mission</button>
+          </div>
+        `;
+      } else {
+        bar.innerHTML = `
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-sagemuted-500/15 text-sagemuted-400 font-mono font-semibold">SHELTER</span>
+            <strong class="text-white">${item.name}</strong>
+            <span class="text-slate-400">— Occupancy: ${item.occupied}/${item.capacity} beds</span>
+          </div>
+          <button onclick="navigate('shelters')" class="text-steelaccent-400 hover:text-white font-medium transition">Manage Shelter &rarr;</button>
+        `;
+      }
+    }
+
+    // SOS & Dispatch Board
+    function setIncidentFilter(filter) {
+      incidentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.dataset.filter === filter) {
+          btn.classList.add('bg-obsidian-800', 'text-white');
+          btn.classList.remove('text-slate-400');
+        } else {
+          btn.classList.remove('bg-obsidian-800', 'text-white');
+          btn.classList.add('text-slate-400');
+        }
+      });
+      renderFullIncidents();
+    }
+
+    function renderFullIncidents() {
+      const container = document.getElementById('full-incident-list');
+      const filtered = incidentFilter === 'ALL'
+        ? state.incidents
+        : state.incidents.filter(i => i.status === incidentFilter);
+
+      if (!filtered.length) {
+        container.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs">No incidents recorded under "${incidentFilter}".</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(inc => {
+        const sevStyle = inc.severity === 'Critical'
+          ? 'text-rosealert-500 bg-rosealert-500/10 border-rosealert-500/25'
+          : inc.severity === 'Urgent'
+            ? 'text-ambermuted-400 bg-ambermuted-500/10 border-ambermuted-500/25'
+            : 'text-steelaccent-400 bg-steelaccent-500/10 border-steelaccent-500/25';
+
+        const teamOptions = state.teams.map(t =>
+          `<option value="${t.name}" ${inc.squad === t.name ? 'selected' : ''}>${t.name} (${t.status})</option>`
+        ).join('');
+
+        return `
+          <div class="p-4 rounded-xl bg-obsidian-950/90 border border-obsidian-800 space-y-3">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-xs text-slate-500">${inc.id}</span>
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded border ${sevStyle}">${inc.severity}</span>
+                  <span class="text-xs text-slate-500">• ${inc.category}</span>
+                </div>
+                <h3 class="font-semibold text-white text-sm mt-1">${inc.title}</h3>
+              </div>
+              <span class="text-[11px] font-mono px-2.5 py-1 rounded bg-obsidian-900 border border-obsidian-800 text-slate-300">
+                ${inc.status}
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">${inc.notes}</p>
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-obsidian-800/80 text-xs">
+              <div class="flex items-center gap-4 text-slate-400">
+                <span><i class="fa-solid fa-location-dot text-slate-500 mr-1"></i>${inc.location}</span>
+                <span><i class="fa-solid fa-user-group text-slate-500 mr-1"></i>${inc.people} Affected</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <select onchange="assignSquad('${inc.id}', this.value)" class="bg-obsidian-900 border border-obsidian-700 rounded-md px-2.5 py-1 text-xs text-slate-200 focus:outline-none">
+                  <option value="Unassigned" ${inc.squad === 'Unassigned' ? 'selected' : ''}>Assign Squad...</option>
+                  ${teamOptions}
+                </select>
+                ${inc.status !== 'Resolved'
+                  ? `<button onclick="resolveIncident('${inc.id}')" class="bg-sagemuted-500 hover:bg-sagemuted-400 text-white font-medium px-3 py-1 rounded-md transition">Resolve</button>`
+                  : `<span class="text-sagemuted-400 font-medium px-2"><i class="fa-solid fa-check mr-1"></i>Resolved</span>`
+                }
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function assignSquad(id, squadName) {
+      const inc = state.incidents.find(i => i.id === id);
+      if (!inc) return;
+      inc.squad = squadName;
+      if (squadName !== 'Unassigned' && inc.status === 'Active') {
+        inc.status = 'Dispatched';
+        const team = state.teams.find(t => t.name === squadName);
+        if (team) {
+          team.status = 'Deployed';
+          team.sector = inc.location.split('(')[0].trim();
+        }
+      }
+      saveState();
+      showToast(`${squadName} assigned to ${inc.id}`);
+    }
+
+    function resolveIncident(id) {
+      const inc = state.incidents.find(i => i.id === id);
+      if (!inc) return;
+      inc.status = 'Resolved';
+      const team = state.teams.find(t => t.name === inc.squad);
+      if (team) team.status = 'Standby';
+      saveState();
+      showToast(`Incident ${inc.id} marked resolved`);
+    }
+
+    function quickAdvance(id) {
+      const inc = state.incidents.find(i => i.id === id);
+      if (!inc) return;
+      if (inc.status === 'Active') assignSquad(id, 'SwiftWater-04');
+      else if (inc.status === 'Dispatched') resolveIncident(id);
+    }
+
+    document.getElementById('sos-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const newId = `INC-${201 + state.incidents.length}`;
+      const newIncident = {
+        id: newId,
+        title: document.getElementById('sos-title').value.trim(),
+        category: document.getElementById('sos-category').value,
+        severity: document.getElementById('sos-severity').value,
+        location: document.getElementById('sos-location').value.trim(),
+        people: parseInt(document.getElementById('sos-people').value, 10) || 1,
+        status: 'Active',
+        squad: 'Unassigned',
+        notes: document.getElementById('sos-notes').value.trim(),
+        x: Math.floor(20 + Math.random() * 60),
+        y: Math.floor(20 + Math.random() * 60),
+        time: 'Just now'
+      };
+      state.incidents.unshift(newIncident);
+      document.getElementById('live-ticker').textContent = `New Alert [${newId}]: ${newIncident.title} — ${newIncident.location} (${newIncident.people} citizens affected)`;
+      this.reset();
+      saveState();
+      showToast(`Incident ${newId} logged and dispatched`, true);
+    });
+
+    // Render Field Teams
+    function renderTeams() {
+      const grid = document.getElementById('teams-grid');
+      grid.innerHTML = state.teams.map(team => {
+        const isDeployed = team.status === 'Deployed';
+        const statusBadge = isDeployed
+          ? 'bg-ambermuted-500/10 text-ambermuted-400 border-ambermuted-500/30'
+          : 'bg-sagemuted-500/10 text-sagemuted-400 border-sagemuted-500/30';
+
+        return `
+          <div class="glass-card rounded-xl p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs text-slate-500">${team.id}</span>
+                <span class="text-[11px] font-medium px-2.5 py-0.5 rounded border ${statusBadge}">${team.status}</span>
+              </div>
+              <h3 class="font-bold text-white text-base mt-1.5">${team.name}</h3>
+              <p class="text-xs text-steelaccent-400 font-medium">${team.specialty}</p>
+
+              <div class="mt-4 pt-3 border-t border-obsidian-800 space-y-2 text-xs text-slate-400">
+                <div class="flex justify-between">
+                  <span>Unit Commander</span>
+                  <strong class="text-slate-200 font-medium">${team.lead}</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span>Active Personnel</span>
+                  <strong class="text-slate-200 font-medium">${team.members} Responders</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span>Current Sector</span>
+                  <strong class="text-slate-200 font-medium">${team.sector}</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span>Assigned Fleet</span>
+                  <strong class="text-slate-200 font-medium">${team.vehicle}</strong>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="toggleTeamStatus('${team.id}')" class="w-full bg-obsidian-850 hover:bg-obsidian-800 border border-obsidian-700 text-slate-200 text-xs font-medium py-2 rounded-lg transition">
+              Toggle Status (${isDeployed ? 'Return to Standby' : 'Mark Deployed'})
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleTeamStatus(id) {
+      const team = state.teams.find(t => t.id === id);
+      if (!team) return;
+      team.status = team.status === 'Deployed' ? 'Standby' : 'Deployed';
+      saveState();
+      showToast(`${team.name} status updated to ${team.status}`);
+    }
+
+    // Render Logistics
+    function renderResources() {
+      const grid = document.getElementById('resources-grid');
+      grid.innerHTML = state.resources.map(res => {
+        const pct = Math.min(100, Math.round((res.available / res.total) * 100));
+        const barColor = pct < 30 ? 'bg-rosealert-500' : pct < 60 ? 'bg-ambermuted-400' : 'bg-sagemuted-400';
+        return `
+          <div class="glass-card rounded-xl p-5 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-500">
+                <span class="font-mono uppercase text-slate-400">${res.category}</span>
+                <span>${res.hub}</span>
+              </div>
+              <h3 class="font-semibold text-white text-base mt-1">${res.name}</h3>
+              <div class="mt-3.5">
+                <div class="flex justify-between text-xs mb-1.5">
+                  <span class="text-slate-400">Available Stock</span>
+                  <span class="font-mono font-medium text-slate-200">${res.available} / ${res.total} ${res.unit}</span>
+                </div>
+                <div class="w-full h-1.5 bg-obsidian-950 rounded-full overflow-hidden">
+                  <div class="h-full ${barColor} transition-all" style="width: ${pct}%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pt-2 border-t border-obsidian-800">
+              <button onclick="adjustResource('${res.id}', -5)" class="flex-1 bg-obsidian-850 hover:bg-obsidian-800 border border-obsidian-700 text-slate-200 text-xs font-medium py-2 rounded-lg transition">
+                Allocate (-5)
+              </button>
+              <button onclick="adjustResource('${res.id}', 10)" class="flex-1 bg-obsidian-850 hover:bg-obsidian-800 border border-obsidian-700 text-slate-200 text-xs font-medium py-2 rounded-lg transition">
+                Restock (+10)
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function adjustResource(id, delta) {
+      const item = state.resources.find(r => r.id === id);
+      if (!item) return;
+      item.available = Math.max(0, item.available + delta);
+      if (item.available > item.total) item.total = item.available;
+      saveState();
+      showToast(`${item.name}: ${delta > 0 ? 'Restocked' : 'Allocated to sector'}`);
+    }
+
+    document.getElementById('add-resource-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('res-name').value.trim();
+      const qty = parseInt(document.getElementById('res-qty').value, 10) || 10;
+      state.resources.unshift({
+        id: `RES-${Date.now()}`,
+        name,
+        category: 'Field Supply',
+        available: qty,
+        total: qty,
+        unit: 'units',
+        hub: 'Central Depot A'
+      });
+      this.reset();
+      saveState();
+      showToast(`Added ${qty} units of ${name}`);
+    });
+
+    // Render Shelters & Advisories
+    function renderSheltersAndAdvisories() {
+      const grid = document.getElementById('shelters-grid');
+      grid.innerHTML = state.shelters.map(sh => {
+        const pct = Math.round((sh.occupied / sh.capacity) * 100);
+        const badge = pct >= 90
+          ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-rosealert-500/10 text-rosealert-500 border border-rosealert-500/25">NEAR CAPACITY</span>'
+          : '<span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sagemuted-500/10 text-sagemuted-400 border border-sagemuted-500/25">OPEN</span>';
+
+        return `
+          <div class="glass-card rounded-xl p-5 space-y-4">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <span class="font-mono text-[11px] text-slate-500">${sh.sector}</span>
+                <h3 class="font-semibold text-white text-sm mt-0.5">${sh.name}</h3>
+              </div>
+              ${badge}
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 text-xs bg-obsidian-950/90 p-3 rounded-lg border border-obsidian-800">
+              <div>
+                <span class="text-slate-500 block text-[11px]">Medical Support</span>
+                <strong class="text-slate-200 font-medium">${sh.medical ? 'On-Site Triage' : 'First-Aid Kit'}</strong>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-[11px]">Power Status</span>
+                <strong class="text-slate-200 font-medium">${sh.power}</strong>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="text-slate-400">Occupancy (${pct}%)</span>
+                <span class="font-mono text-slate-200">${sh.occupied} / ${sh.capacity}</span>
+              </div>
+              <div class="w-full h-1.5 bg-obsidian-950 rounded-full overflow-hidden">
+                <div class="h-full ${pct >= 90 ? 'bg-rosealert-500' : 'bg-steelaccent-400'} transition-all" style="width: ${pct}%"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2 border-t border-obsidian-800">
+              <button onclick="updateShelter('${sh.id}', 5)" class="flex-1 bg-obsidian-850 hover:bg-obsidian-800 border border-obsidian-700 text-slate-200 text-xs font-medium py-1.5 rounded-lg transition">
+                + Check-In (+5)
+              </button>
+              <button onclick="updateShelter('${sh.id}', -5)" class="flex-1 bg-obsidian-850 hover:bg-obsidian-800 border border-obsidian-700 text-slate-400 hover:text-slate-200 text-xs font-medium py-1.5 rounded-lg transition">
+                Release (-5)
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const advList = document.getElementById('advisories-list');
+      advList.innerHTML = state.advisories.map(adv => `
+        <div class="p-3.5 rounded-lg bg-obsidian-950/90 border border-obsidian-800 space-y-1">
+          <div class="flex items-center justify-between text-[11px] text-slate-500">
+            <span class="font-mono text-ambermuted-400">BULLETIN</span>
+            <span>${adv.time}</span>
+          </div>
+          <h4 class="font-semibold text-xs text-slate-100">${adv.title}</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">${adv.body}</p>
+        </div>
+      `).join('');
+    }
+
+    function updateShelter(id, delta) {
+      const sh = state.shelters.find(s => s.id === id);
+      if (!sh) return;
+      sh.occupied = Math.max(0, Math.min(sh.capacity, sh.occupied + delta));
+      saveState();
+      showToast(`Updated capacity for ${sh.name}`);
+    }
+
+    document.getElementById('advisory-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const title = document.getElementById('adv-title').value.trim();
+      const body = document.getElementById('adv-body').value.trim();
+      state.advisories.unshift({
+        id: `ADV-${Date.now()}`,
+        title,
+        body,
+        time: 'Just now'
+      });
+      document.getElementById('live-ticker').textContent = `Public Bulletin: ${title} — ${body}`;
+      this.reset();
+      saveState();
+      showToast('Public advisory published');
+    });
+
+    function renderAll() {
+      renderOverview();
+      renderFullIncidents();
+      renderTeams();
+      renderResources();
+      renderSheltersAndAdvisories();
+    }
+
+    // Live Clock
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('clock-display').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' IST';
+    }, 1000);
+
+    // Boot
+    navigate('operations');
+    renderAll();
+  </script>
+</body>
 </html>
